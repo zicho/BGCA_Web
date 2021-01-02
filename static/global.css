@@ -40,11 +40,15 @@ main {
 
 
 .navbar-icon  {
-	color: inherit !important 
+	color: inherit !important;
+	vertical-align: center;
+	scale: 0.5;
 }
 
-.navbar-icon.active {
-	color: white !important
+.fa-stack.active .navbar-icon {
+
+	color: white !important;
+	transition: color 0.2s ease;
 }
 
 .navbar-nav {

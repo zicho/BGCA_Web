@@ -1,6 +1,9 @@
 <script>
 	export let segment;
-
+	
+	import { fade } from 'svelte/transition';
+	import { quintInOut } from "svelte/easing"
+	
 	import Icon from "fa-svelte";
 	import { faUser } from "@fortawesome/free-solid-svg-icons/faUser";
 	import { faEnvelope } from "@fortawesome/free-solid-svg-icons/faEnvelope";
@@ -24,6 +27,7 @@
 		DropdownMenu,
 		Row,
 	} from "sveltestrap/src";
+import { faCircle } from '@fortawesome/free-solid-svg-icons/faCircle';
 
 	let isOpen = false;
 
@@ -36,6 +40,8 @@
 	function test() {
 		active = !active
 	}
+
+	setTimeout(function(){ active = true; }, 3000);
 </script>
 
 <Navbar color="dark" dark expand="md">
@@ -59,12 +65,14 @@
 				</NavLink>
 			</NavItem>
 			<UncontrolledDropdown nav inNavbar class="nav-item-narrow">
-				<DropdownToggle nav caret class="clear-defaults">
-					<span class="fa-stack">
-						{#if active}<i class="navbar-icon fas fa-circle fa-stack-2x notify"></i>{/if}
-						<i class:active="{active === true}" class="navbar-icon fas fa-envelope fa-stack-1x fa-inverse"></i>
+				<DropdownToggle nav caret>
+					<span class="fa-stack fa-1x" class:active="{active === true}">
+						{#if active}
+							<Icon icon={faCircle} class="fas fa-stack-2x notify"/>
+						{/if}
+							<Icon icon={faEnvelope} class="navbar-icon fas fa-stack-2x fa-inverse"/>
 					</span>
-					<span>3</span>
+					<span>2</span>
 				</DropdownToggle>
 				<DropdownMenu right>
 					<DropdownItem>
@@ -79,17 +87,14 @@
 				</DropdownMenu>
 			</UncontrolledDropdown>
 			<UncontrolledDropdown nav inNavbar class="nav-item-narrow">
-				<DropdownToggle nav caret class="clear-defaults">
-
-					<span class="fa-stack">
-						{#if active}<i class="navbar-icon fas fa-circle fa-stack-2x notify"></i>{/if}
-						<i class:active="{active === true}" class="navbar-icon fas fa-bell fa-stack-1x fa-inverse"></i>
+				<DropdownToggle nav caret>
+					<span class="fa-stack fa-1x" class:active="{active === true}">
+						{#if active}
+							<Icon icon={faCircle} class="fas fa-stack-2x notify"/>
+						{/if}
+							<Icon icon={faBell} class="navbar-icon fas fa-stack-2x fa-inverse"/>
 					</span>
 					<span>3</span>
-					<!-- <div class="parent">
-						<Icon class="active image1" icon={faSquare} />
-						<Icon class="image2"  icon={faBell} /> 3
-					</div> -->
 				</DropdownToggle>
 				<DropdownMenu right>
 					<DropdownItem>
