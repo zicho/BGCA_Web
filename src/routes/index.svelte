@@ -1,6 +1,14 @@
 <script lang="typescript">
 	export let title: string = "Hello TypeScript";
 
+	import { authentication } from '../stores/auth.js';
+
+	let isAuthed;
+
+	const unsubscribe = authentication.subscribe(value => {
+		isAuthed = value;
+	});
+
 	import * as signalR from "@microsoft/signalr";
 	import { fade } from "svelte/transition";
 	import { quintInOut } from "svelte/easing";
@@ -10,6 +18,7 @@
 		Spinner,
 		Row,
 		Container,
+		CustomInput,
 		Form,
 		FormGroup,
 		Label,
@@ -55,10 +64,9 @@
 		const result = await response.json();
 
 		if (!result.success) {
-			loggedIn = false;
 			displayError(result.message);
 		} else {
-			loggedIn = true;
+			authentication.update(() => true);
 			token = result.data.jwt;
 			connect(result.data.jwt);
 		}
@@ -111,10 +119,10 @@
 	<title>{title}</title>
 </svelte:head>
 
-{#if !loggedIn}
-	<Container class="text-center clear-defaults col-md-4 mx-auto">
+{#if !isAuthed}
+	<Container class="clear-defaults col-md-4 mx-auto">
 		<Row>
-			<h1>BGCA</h1>
+			<h1 class="text-center">BGCA</h1>
 		</Row>
 		<Row>
 			<Form>
@@ -133,6 +141,10 @@
 					<Label for="input_password" class="dm-xs-b">
 						<strong>Password</strong>
 					</Label>
+					<a
+						href="/"
+						class="float-right text-primary no-underline">Forgot
+						password?</a>
 					<Input
 						bind:value={password}
 						type="password"
@@ -156,17 +168,19 @@
 				</FormGroup>
 			</Form>
 		</Row>
-		<Row class="dm-lg-t">
+		<Row class="dm-sm-t">
+			<span class="text-center">Want to join?
+				<a href="#" class="text-primary no-underline">Register here!</a></span>
+		</Row>
+		<Row class="dm-lg-t" style="min-height: 50px;">
 			{#if errorMessage != null}
 				<h5
-					class="error"
+					class="color-error text-center"
 					transition:fade={{ delay: 250, duration: 300, easing: quintInOut }}>
 					{errorMessage}
 				</h5>
 			{/if}
 		</Row>
-		<Row />
-		
 	</Container>
 {:else}
 	<h3>User panel</h3>

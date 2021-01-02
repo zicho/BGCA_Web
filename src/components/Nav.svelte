@@ -1,16 +1,14 @@
 <script>
 	export let segment;
-	
-	import { fade } from 'svelte/transition';
-	import { quintInOut } from "svelte/easing"
-	
+
+	import { authentication } from "../stores/auth.js";
 	import Icon from "fa-svelte";
 	import { faUser } from "@fortawesome/free-solid-svg-icons/faUser";
 	import { faEnvelope } from "@fortawesome/free-solid-svg-icons/faEnvelope";
 	import { faBell } from "@fortawesome/free-solid-svg-icons/faBell";
 	import { faDice } from "@fortawesome/free-solid-svg-icons/faDice";
 	import { faCalendarAlt } from "@fortawesome/free-solid-svg-icons/faCalendarAlt";
-	import { faSquare } from "@fortawesome/free-solid-svg-icons/faSquare";
+	import { faSignOutAlt } from "@fortawesome/free-solid-svg-icons/faSignOutAlt";
 
 	import {
 		Navbar,
@@ -20,14 +18,15 @@
 		Nav,
 		NavItem,
 		NavLink,
-		Badge,
-		UncontrolledDropdown,
-		DropdownToggle,
-		DropdownItem,
-		DropdownMenu,
-		Row,
 	} from "sveltestrap/src";
-import { faCircle } from '@fortawesome/free-solid-svg-icons/faCircle';
+
+	import { faCircle } from "@fortawesome/free-solid-svg-icons/faCircle";
+
+	let isAuthed;
+
+	const unsubscribe = authentication.subscribe((value) => {
+		isAuthed = value;
+	});
 
 	let isOpen = false;
 
@@ -38,10 +37,12 @@ import { faCircle } from '@fortawesome/free-solid-svg-icons/faCircle';
 	let active = false;
 
 	function test() {
-		active = !active
+		active = !active;
 	}
 
-	setTimeout(function(){ active = true; }, 3000);
+	function logOut() {
+		authentication.update(() => false);
+	}
 </script>
 
 <Navbar color="dark" dark expand="md">
@@ -49,68 +50,73 @@ import { faCircle } from '@fortawesome/free-solid-svg-icons/faCircle';
 	<NavbarToggler on:click={() => (isOpen = !isOpen)} />
 	<Collapse {isOpen} navbar expand="md" on:update={handleUpdate}>
 		<Nav class="ml-auto justify-content-end dm-lg-r" navbar>
-			<NavItem>
-				<NavLink class="active nav-item-wide" href="#components/">
-					<Icon icon={faUser} />Profile
-				</NavLink>
-			</NavItem>
-			<NavItem class="nav-item-wide">
-				<NavLink href="#components/">
-					<Icon icon={faDice} />Games
-				</NavLink>
-			</NavItem>
-			<NavItem class="nav-item-wide">
-				<NavLink on:click={test}>
-					<Icon icon={faCalendarAlt} />Sessions
-				</NavLink>
-			</NavItem>
-			<UncontrolledDropdown nav inNavbar class="nav-item-narrow">
-				<DropdownToggle nav caret>
-					<span class="fa-stack fa-1x" class:active="{active === true}">
-						{#if active}
-							<Icon icon={faCircle} class="fas fa-stack-2x notify"/>
-						{/if}
-							<Icon icon={faEnvelope} class="navbar-icon fas fa-stack-2x fa-inverse"/>
-					</span>
-					<span>2</span>
-				</DropdownToggle>
-				<DropdownMenu right>
-					<DropdownItem>
-						TestUser: Aliquam sagittis risus ligula, id tincidunt arcu ul...
-					</DropdownItem>
-					<DropdownItem>
-						TestUser2: Vestibulum justo neque, dignissim in risus sit amet...
-					</DropdownItem>
-					<DropdownItem divider />
-					<DropdownItem>Go to inbox</DropdownItem>
-					<DropdownItem on:click={() => active = false}>Mark all as read</DropdownItem>
-				</DropdownMenu>
-			</UncontrolledDropdown>
-			<UncontrolledDropdown nav inNavbar class="nav-item-narrow">
-				<DropdownToggle nav caret>
-					<span class="fa-stack fa-1x" class:active="{active === true}">
-						{#if active}
-							<Icon icon={faCircle} class="fas fa-stack-2x notify"/>
-						{/if}
-							<Icon icon={faBell} class="navbar-icon fas fa-stack-2x fa-inverse"/>
-					</span>
-					<span>3</span>
-				</DropdownToggle>
-				<DropdownMenu right>
-					<DropdownItem>
-						You have been invited to play Scythe
-					</DropdownItem>
-					<DropdownItem>
-						There is an opening to play Kingdomino in your area
-					</DropdownItem>
-					<DropdownItem>
-						TestUser has joined your session of 7 Wonders
-					</DropdownItem>
-					<DropdownItem divider />
-					<DropdownItem>Go to notifications</DropdownItem>
-					<DropdownItem>Mark all as read</DropdownItem>
-				</DropdownMenu>
-			</UncontrolledDropdown>
+			{#if isAuthed}
+				<NavItem>
+					<NavLink class="active nav-item-wide" href="#components/">
+						<Icon class="navbar-icon" icon={faUser} />Profile
+					</NavLink>
+				</NavItem>
+				<NavItem class="nav-item-wide">
+					<NavLink href="#components/">
+						<Icon class="navbar-icon" icon={faDice} />Games
+					</NavLink>
+				</NavItem>
+				<NavItem class="nav-item-wide">
+					<NavLink on:click={test}>
+						<Icon
+							class="navbar-icon"
+							icon={faCalendarAlt} />Sessions
+					</NavLink>
+				</NavItem>
+				<NavItem class="nav-item-narrow clear-defaults">
+					<NavLink on:click={test}>
+						<span
+							class="fa-stack clear-defaults"
+							class:active={active === true}>
+							{#if active}
+								<Icon
+									icon={faCircle}
+									class="fas fa-stack-2x notify clear-defaults" />
+							{/if}
+							<Icon
+								icon={faEnvelope}
+								class="navbar-icon fas fa-stack-2x fa-inverse clear-defaults" />
+						</span>
+					</NavLink>
+				</NavItem>
+				<NavItem class="nav-item-narrow clear-defaults">
+					<NavLink on:click={test}>
+						<span
+							class="fa-stack clear-defaults"
+							class:active={active === true}>
+							{#if active}
+								<Icon
+									icon={faCircle}
+									class="fas fa-stack-2x notify clear-defaults" />
+							{/if}
+							<Icon
+								icon={faBell}
+								class="navbar-icon fas fa-stack-2x fa-inverse clear-defaults" />
+						</span>
+					</NavLink>
+				</NavItem>
+				<NavItem>
+					<NavLink on:click="{logOut}"  class="nav-item-wide" href="#components/">
+						<Icon class="navbar-icon" icon={faSignOutAlt} />Log out
+					</NavLink>
+				</NavItem>
+			{:else}
+				<NavItem>
+					<NavLink class="nav-item-wide" href="#components/">
+						<Icon class="navbar-icon" icon={faUser} />Login
+					</NavLink>
+				</NavItem>
+				<NavItem class="nav-item-wide">
+					<NavLink href="#components/">
+						<Icon class="navbar-icon" icon={faDice} />Register
+					</NavLink>
+				</NavItem>
+			{/if}
 		</Nav>
 	</Collapse>
 </Navbar>
