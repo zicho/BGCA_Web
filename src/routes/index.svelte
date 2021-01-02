@@ -1,5 +1,6 @@
 <script lang="typescript">
 	export let title: string = "Hello TypeScript";
+
 	import * as signalR from "@microsoft/signalr";
 	import { fade } from "svelte/transition";
 	import { quintInOut } from "svelte/easing";
@@ -20,6 +21,7 @@
 
 	let username: string = "test";
 	let password: string = "test";
+	let token: string;
 
 	let nameOfGame: string = "Adrenaline";
 	let recipient: string = "test2";
@@ -43,7 +45,8 @@
 					username: username,
 					password: password,
 				}),
-			})
+			}
+		)
 			.catch(() => displayError("Could not reach server"))
 			.finally(() => {
 				loading = false;
@@ -56,6 +59,7 @@
 			displayError(result.message);
 		} else {
 			loggedIn = true;
+			token = result.data.jwt;
 			connect(result.data.jwt);
 		}
 	}
@@ -71,6 +75,7 @@
 			headers: {
 				"Content-Type": "application/json",
 				Accept: "application/json",
+				Authorization: `Bearer ${token}`,
 			},
 			body: JSON.stringify({
 				sender: username,
@@ -107,7 +112,7 @@
 </svelte:head>
 
 {#if !loggedIn}
-	<Container class="text-center clear-defaults col-md-8 mx-auto">
+	<Container class="text-center clear-defaults col-md-4 mx-auto">
 		<Row>
 			<h1>BGCA</h1>
 		</Row>
@@ -142,6 +147,7 @@
 						class="dm-md-t"
 						on:click={login}>
 						{#if !loading}
+							<!-- <Icon icon={faCircle} /> -->
 							Login
 						{:else}
 							<Spinner size="sm" color="light" />
@@ -160,6 +166,7 @@
 			{/if}
 		</Row>
 		<Row />
+		
 	</Container>
 {:else}
 	<h3>User panel</h3>
