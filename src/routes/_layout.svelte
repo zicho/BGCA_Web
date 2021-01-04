@@ -2,6 +2,11 @@
 	import Nav from "../components/Nav.svelte";
 	import About from "./about.svelte";
 
+	import Login from "../components/Login.svelte"
+	import Register from "../components/Register.svelte"
+
+	import { isAuthed } from "../stores/auth.js";
+
 	export let segment;
 </script>
 
@@ -28,17 +33,22 @@
 		rel="stylesheet"
 		integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1"
 		crossorigin="anonymous" />
+		
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" integrity="sha512-+4zCK9k+qNFUR5X+cKL9EIR+ZOhtIloNl9GIKS57V1MyNsYpYcUrUeQc9vNfzsWfV28IaLL3i96P9sdNyeRssA==" crossorigin="anonymous" />
-
-
+		
 		<link rel="preconnect" href="https://fonts.gstatic.com">
 <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300&display=swap" rel="stylesheet">
 </svelte:head>
 
 <html lang="en" xml:lang="en">
 	<body>
+
+		{#if $isAuthed}
 		<main>
 			<slot />
 		</main>
+		{:else}
+			<Login />
+		{/if}
 	</body>
 </html>

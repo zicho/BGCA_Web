@@ -1,7 +1,7 @@
 <script>
 	export let segment;
 
-	import { authentication } from "../stores/auth.js";
+	import { isAuthed, jwt } from "../stores/auth.js";
 	import Icon from "fa-svelte";
 	import { faUser } from "@fortawesome/free-solid-svg-icons/faUser";
 	import { faEnvelope } from "@fortawesome/free-solid-svg-icons/faEnvelope";
@@ -18,15 +18,13 @@
 		Nav,
 		NavItem,
 		NavLink,
+		UncontrolledDropdown,
+		DropdownToggle,
+		DropdownItem,
+		DropdownMenu,
 	} from "sveltestrap/src";
 
 	import { faCircle } from "@fortawesome/free-solid-svg-icons/faCircle";
-
-	let isAuthed;
-
-	const unsubscribe = authentication.subscribe((value) => {
-		isAuthed = value;
-	});
 
 	let isOpen = false;
 
@@ -38,10 +36,7 @@
 
 	function test() {
 		active = !active;
-	}
-
-	function logOut() {
-		authentication.update(() => false);
+		console.log(segment);
 	}
 </script>
 
@@ -50,14 +45,14 @@
 	<NavbarToggler on:click={() => (isOpen = !isOpen)} />
 	<Collapse {isOpen} navbar expand="md" on:update={handleUpdate}>
 		<Nav class="ml-auto justify-content-end dm-lg-r" navbar>
-			{#if isAuthed}
+			{#if $isAuthed}
 				<NavItem>
-					<NavLink class="active nav-item-wide" href="#components/">
+					<NavLink class="active nav-item-wide" href="/">
 						<Icon class="navbar-icon" icon={faUser} />Profile
 					</NavLink>
 				</NavItem>
 				<NavItem class="nav-item-wide">
-					<NavLink href="#components/">
+					<NavLink href="/games" aria-current="true">
 						<Icon class="navbar-icon" icon={faDice} />Games
 					</NavLink>
 				</NavItem>
@@ -68,7 +63,7 @@
 							icon={faCalendarAlt} />Sessions
 					</NavLink>
 				</NavItem>
-				<NavItem class="nav-item-narrow clear-defaults">
+				<!-- <NavItem class="nav-item-narrow clear-defaults">
 					<NavLink on:click={test}>
 						<span
 							class="fa-stack clear-defaults"
@@ -99,13 +94,66 @@
 								class="navbar-icon fas fa-stack-2x fa-inverse clear-defaults" />
 						</span>
 					</NavLink>
-				</NavItem>
+				</NavItem> -->
+				<UncontrolledDropdown nav inNavbar class="nav-item-narrow">
+					<DropdownToggle nav>
+						<NavLink on:click={test}>
+							<span
+								class="fa-stack" style="width: 30px"
+								class:active={active === true}>
+								{#if active}
+									<Icon
+										icon={faCircle}
+										class="fas fa-stack-2x notify" />
+								{/if}
+								<Icon
+									icon={faEnvelope}
+									class="navbar-icon fas fa-stack-2x fa-inverse" />
+							</span>
+							<span>9</span>
+						</NavLink>
+					</DropdownToggle>
+					<DropdownMenu right>
+						<DropdownItem>Option 1</DropdownItem>
+						<DropdownItem>Option 2</DropdownItem>
+						<DropdownItem divider />
+						<DropdownItem>Reset</DropdownItem>
+					</DropdownMenu>
+				</UncontrolledDropdown>
+				<UncontrolledDropdown nav inNavbar class="nav-item-narrow">
+					<DropdownToggle nav>
+						<NavLink on:click={test}>
+							<span
+								class="fa-stack" style="width: 30px"
+								class:active={active === true}>
+								{#if active}
+									<Icon
+										icon={faCircle}
+										class="fas fa-stack-2x notify" />
+								{/if}
+								<Icon
+									icon={faBell}
+									class="navbar-icon fas fa-stack-2x fa-inverse" />
+							</span>
+							<span>9</span>
+						</NavLink>
+					</DropdownToggle>
+					<DropdownMenu right>
+						<DropdownItem>Option 1</DropdownItem>
+						<DropdownItem>Option 2</DropdownItem>
+						<DropdownItem divider />
+						<DropdownItem>Reset</DropdownItem>
+					</DropdownMenu>
+				</UncontrolledDropdown>
 				<NavItem>
-					<NavLink on:click="{logOut}"  class="nav-item-wide" href="#components/">
+					<NavLink
+						on:click={() => ($isAuthed = false)}
+						class="nav-item-wide"
+						href="#components/">
 						<Icon class="navbar-icon" icon={faSignOutAlt} />Log out
 					</NavLink>
 				</NavItem>
-			{:else}
+				<!-- {:else}
 				<NavItem>
 					<NavLink class="nav-item-wide" href="#components/">
 						<Icon class="navbar-icon" icon={faUser} />Login
@@ -115,7 +163,7 @@
 					<NavLink href="#components/">
 						<Icon class="navbar-icon" icon={faDice} />Register
 					</NavLink>
-				</NavItem>
+				</NavItem> -->
 			{/if}
 		</Nav>
 	</Collapse>
