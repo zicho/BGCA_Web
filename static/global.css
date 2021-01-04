@@ -124,6 +124,11 @@ main {
 	color: #b3b3b3!important
 }
 
+.color-dropdown-sender {
+	color: #999999!important
+}
+
+
 .no-underline {
 	text-decoration: none !important
 }
@@ -267,6 +272,14 @@ code {
 
 .w-auto {
 	width: auto !important;
+}
+
+.w-100  {
+	width: 100% !important;
+}
+
+.dropdown-message {
+	font-size: small
 }
 
 @media (min-width: 400px) {

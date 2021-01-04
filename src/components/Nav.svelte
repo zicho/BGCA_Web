@@ -1,9 +1,17 @@
 <script>
 	export let segment;
 	import "../../node_modules/toastr/build/toastr.css";
-	import * as Toastr from 'toastr';
+	import * as Toastr from "toastr";
 
-	import { isAuthed, messages, notifications, clearMessages } from "../stores/user.js";
+	import {
+		isAuthed,
+		messageCount,
+		notificationCount,
+		clearMessages,
+		logout,
+		getLatestUnreadMessages,
+		messages,
+	} from "../stores/user.js";
 	import Icon from "fa-svelte";
 	import { faUser } from "@fortawesome/free-solid-svg-icons/faUser";
 	import { faEnvelope } from "@fortawesome/free-solid-svg-icons/faEnvelope";
@@ -24,6 +32,7 @@
 		DropdownToggle,
 		DropdownItem,
 		DropdownMenu,
+		Row,
 	} from "sveltestrap/src";
 
 	import { faCircle } from "@fortawesome/free-solid-svg-icons/faCircle";
@@ -34,8 +43,8 @@
 		isOpen = event.detail.isOpen;
 	}
 
-	$: unreadMessages = $messages != 0;
-	$: unreadNotifications = $notifications != 0;
+	$: unreadMessages = $messageCount != 0;
+	$: unreadNotifications = $notificationCount != 0;
 
 	function test() {
 		// Toastr.success('Are you the 6 fingered man?')
@@ -69,7 +78,7 @@
 				</NavItem>
 				<UncontrolledDropdown nav inNavbar class="nav-item-narrow">
 					<DropdownToggle nav>
-						<NavLink on:click={test}>
+						<NavLink on:click={getLatestUnreadMessages}>
 							<span
 								class="fa-stack"
 								class:active={unreadMessages === true}>
@@ -82,14 +91,47 @@
 									icon={faEnvelope}
 									class="navbar-icon fas fa-stack-2x fa-inverse" />
 							</span>
-							<span>{$messages}</span>
+							<span>{$messageCount}</span>
 						</NavLink>
 					</DropdownToggle>
 					<DropdownMenu right>
-						<!-- <DropdownItem>Option 1</DropdownItem>
-						<DropdownItem>Option 2</DropdownItem> -->
-						<DropdownItem divider />
-						<DropdownItem on:click={clearMessages}>Mark all as read</DropdownItem>
+						{#if $messages.length > 0}
+							{#each $messages as m, i}
+								<DropdownItem>
+									<Row>
+										<span
+											class="dropdown-message"><strong>{m.subject}</strong></span>
+									</Row>
+									<Row>
+										<span
+											class="dropdown-message">{m.content}</span>
+									</Row>
+									<Row
+										class="justify-content-end float-right">
+										<span
+											class="dropdown-message dm-xs-t color-dropdown-sender">Sent
+											by:
+											{m.sender}</span>
+									</Row>
+								</DropdownItem>
+								{#if i + 1 != $messages.length}
+									<DropdownItem divider />
+								{/if}
+							{/each}
+						{:else}
+							<DropdownItem>
+								<Row>
+									<span class="dropdown-message">No unread
+										messages</span>
+								</Row>
+							</DropdownItem>
+						{/if}
+						{#if $messages.length > 0}
+							<DropdownItem divider />
+							<DropdownItem on:click={clearMessages}>
+								<span class="dropdown-message">Mark all as read</span>
+							</DropdownItem>
+						{/if}
 					</DropdownMenu>
 				</UncontrolledDropdown>
 				<UncontrolledDropdown nav inNavbar class="nav-item-narrow">
@@ -107,7 +149,7 @@
 									icon={faBell}
 									class="navbar-icon fas fa-stack-2x fa-inverse" />
 							</span>
-							<span>{$notifications}</span>
+							<span>{$notificationCount}</span>
 						</NavLink>
 					</DropdownToggle>
 					<DropdownMenu right>
@@ -119,7 +161,7 @@
 				</UncontrolledDropdown>
 				<NavItem>
 					<NavLink
-						on:click={() => ($isAuthed = false)}
+						on:click={logout}
 						class="nav-item-wide"
 						href="#components/">
 						<Icon class="navbar-icon" icon={faSignOutAlt} />Log out

@@ -1,12 +1,8 @@
 <script lang="ts">
-    import { isAuthed, messages, user, syncMessages } from "../stores/user.js";
+    import { isAuthed, user, login } from "../stores/user.js";
 
-    import * as signalR from "@microsoft/signalr";
     import { fade } from "svelte/transition";
     import { quintInOut } from "svelte/easing";
-    import { flip } from "svelte/animate";
-
-    import * as Toastr from "toastr";
 
     import {
         Button,
@@ -28,7 +24,7 @@
 
     let errorMessage: string;
 
-    async function login(e) {
+    async function confirm(e) {
         e.preventDefault();
         loading = true;
 
@@ -40,47 +36,20 @@
             }
         }
 
-        const response: any = await fetch(
-            `https://localhost:44361/api/user/${
-                register ? "register" : "login"
-            }`,
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Accept: "application/json",
-                },
-                body: JSON.stringify({
-                    username: username,
-                    password: password,
-                }),
-            }
-        )
-            .catch(() => displayError("Could not reach server"))
-            .finally(() => {
-                loading = false;
-            });
+        var result: any = login(username, password, register).catch(() => displayError("Could not reach server."));
 
-        const result = await response.json();
-
-        if (!result.success) {
+        if (!result) {
             $isAuthed = false;
             displayError(result.message);
-        } else {
-            if (!register) {
-                $isAuthed = true;
-                $user = result.data;
-                console.dir($user);
-            } else {
-                register = false;
-            }
-
-            connect(result.data.jwt);
-            syncMessages();
+        } else if (register) {
+            register = false;
+            loading = false;
         }
     }
 
-    function displayError(msg) {
+    function displayError(msg) 
+    {
+        loading = false;
         errorMessage = msg;
         setTimeout(() => (errorMessage = null), 5000);
     }
@@ -100,31 +69,6 @@
     // 		}),
     // 	});
     // }
-
-    async function connect(token) {
-        const connection = new signalR.HubConnectionBuilder()
-            .withUrl("https://localhost:44361/notifications", {
-                accessTokenFactory: () => token,
-            })
-            .build();
-
-        connection.on("SendNotice", (content) => {
-            Toastr.success(content);
-        });
-
-        connection.on("SendPrivateMessage", async (subject, content) => {
-            Toastr.success(content, subject);
-            syncMessages();
-        });
-
-        connection
-            .start()
-            .finally(() =>
-                console.log(
-                    connection.state == signalR.HubConnectionState.Connected
-                )
-            );
-    }
 </script>
 
 <Container class="clear-defaults col-md-4 mx-auto">
@@ -182,7 +126,7 @@
                         style="width: 100%"
                         color="primary"
                         class="dm-md-t"
-                        on:click={login}>
+                        on:click={confirm}>
                         {#if !loading}
                             <!-- <Icon icon={faCircle} /> -->
                             {register ? 'Register' : 'Login'}
