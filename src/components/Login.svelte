@@ -1,10 +1,12 @@
 <script lang="ts">
-    import { isAuthed, jwt, user } from "../stores/auth.js";
+    import { isAuthed, messages, user, syncMessages } from "../stores/user.js";
 
     import * as signalR from "@microsoft/signalr";
     import { fade } from "svelte/transition";
     import { quintInOut } from "svelte/easing";
-    import { flip } from 'svelte/animate';
+    import { flip } from "svelte/animate";
+
+    import * as Toastr from "toastr";
 
     import {
         Button,
@@ -67,14 +69,14 @@
         } else {
             if (!register) {
                 $isAuthed = true;
-                $jwt = result.data.jwt;
                 $user = result.data;
+                console.dir($user);
             } else {
                 register = false;
             }
 
-            console.dir($user);
             connect(result.data.jwt);
+            syncMessages();
         }
     }
 
@@ -99,16 +101,20 @@
     // 	});
     // }
 
-    function connect(token) {
-        console.dir(token);
+    async function connect(token) {
         const connection = new signalR.HubConnectionBuilder()
             .withUrl("https://localhost:44361/notifications", {
                 accessTokenFactory: () => token,
             })
             .build();
 
-        connection.on("SendNotice", (to: string, content) => {
-            alert("message for " + to + ": " + content);
+        connection.on("SendNotice", (content) => {
+            Toastr.success(content);
+        });
+
+        connection.on("SendPrivateMessage", async (subject, content) => {
+            Toastr.success(content, subject);
+            syncMessages();
         });
 
         connection
@@ -156,8 +162,7 @@
                     placeholder="Password" />
             </FormGroup>
             {#if register}
-                <div
-                    transition:fade={{ duration: 300, easing: quintInOut }}>
+                <div transition:fade={{ duration: 300, easing: quintInOut }}>
                     <FormGroup class="dm-sm-t">
                         <Label for="input_confirm_password" class="dm-xs-b">
                             <strong>Confirm password</strong>
@@ -173,19 +178,19 @@
             {/if}
             <FormGroup>
                 <div transition:fade={{ duration: 300, easing: quintInOut }}>
-                <Button
-                    style="width: 100%"
-                    color="primary"
-                    class="dm-md-t"
-                    on:click={login}>
-                    {#if !loading}
-                        <!-- <Icon icon={faCircle} /> -->
-                        {register ? 'Register' : 'Login'}
-                    {:else}
-                        <Spinner size="sm" color="light" />
-                    {/if}
-                </Button>
-            </div>
+                    <Button
+                        style="width: 100%"
+                        color="primary"
+                        class="dm-md-t"
+                        on:click={login}>
+                        {#if !loading}
+                            <!-- <Icon icon={faCircle} /> -->
+                            {register ? 'Register' : 'Login'}
+                        {:else}
+                            <Spinner size="sm" color="light" />
+                        {/if}
+                    </Button>
+                </div>
             </FormGroup>
         </Form>
     </Row>

@@ -1,3 +1,5 @@
+@import "toastr";
+
 :root {
 	--dm-xs: 5px;
 	/* default margin: extra small */
@@ -50,6 +52,11 @@ main {
 
 .nav-item-wide {
 	min-width: 96px;
+}
+
+.nav-item-narrow {
+	min-width: 35px;
+	
 }
 
 .navbar svg {

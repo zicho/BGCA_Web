@@ -1,7 +1,7 @@
 <script lang="typescript">
 	export let title: string = "Hello TypeScript";
 
-	import { isAuthed, jwt, user } from "../stores/auth.js";
+	import { isAuthed, user } from "../stores/user.js";
 </script>
 
 <svelte:head>

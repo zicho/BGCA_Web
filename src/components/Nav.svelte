@@ -1,7 +1,9 @@
 <script>
 	export let segment;
+	import "../../node_modules/toastr/build/toastr.css";
+	import * as Toastr from 'toastr';
 
-	import { isAuthed, jwt } from "../stores/auth.js";
+	import { isAuthed, messages, notifications, clearMessages } from "../stores/user.js";
 	import Icon from "fa-svelte";
 	import { faUser } from "@fortawesome/free-solid-svg-icons/faUser";
 	import { faEnvelope } from "@fortawesome/free-solid-svg-icons/faEnvelope";
@@ -32,11 +34,13 @@
 		isOpen = event.detail.isOpen;
 	}
 
-	let active = false;
+	$: unreadMessages = $messages != 0;
+	$: unreadNotifications = $notifications != 0;
 
 	function test() {
-		active = !active;
-		console.log(segment);
+		// Toastr.success('Are you the 6 fingered man?')
+		// active = !active;
+		// console.log(segment);
 	}
 </script>
 
@@ -63,45 +67,13 @@
 							icon={faCalendarAlt} />Sessions
 					</NavLink>
 				</NavItem>
-				<!-- <NavItem class="nav-item-narrow clear-defaults">
-					<NavLink on:click={test}>
-						<span
-							class="fa-stack clear-defaults"
-							class:active={active === true}>
-							{#if active}
-								<Icon
-									icon={faCircle}
-									class="fas fa-stack-2x notify clear-defaults" />
-							{/if}
-							<Icon
-								icon={faEnvelope}
-								class="navbar-icon fas fa-stack-2x fa-inverse clear-defaults" />
-						</span>
-					</NavLink>
-				</NavItem>
-				<NavItem class="nav-item-narrow clear-defaults">
-					<NavLink on:click={test}>
-						<span
-							class="fa-stack clear-defaults"
-							class:active={active === true}>
-							{#if active}
-								<Icon
-									icon={faCircle}
-									class="fas fa-stack-2x notify clear-defaults" />
-							{/if}
-							<Icon
-								icon={faBell}
-								class="navbar-icon fas fa-stack-2x fa-inverse clear-defaults" />
-						</span>
-					</NavLink>
-				</NavItem> -->
 				<UncontrolledDropdown nav inNavbar class="nav-item-narrow">
 					<DropdownToggle nav>
 						<NavLink on:click={test}>
 							<span
-								class="fa-stack" style="width: 30px"
-								class:active={active === true}>
-								{#if active}
+								class="fa-stack"
+								class:active={unreadMessages === true}>
+								{#if unreadMessages}
 									<Icon
 										icon={faCircle}
 										class="fas fa-stack-2x notify" />
@@ -110,23 +82,23 @@
 									icon={faEnvelope}
 									class="navbar-icon fas fa-stack-2x fa-inverse" />
 							</span>
-							<span>9</span>
+							<span>{$messages}</span>
 						</NavLink>
 					</DropdownToggle>
 					<DropdownMenu right>
-						<DropdownItem>Option 1</DropdownItem>
-						<DropdownItem>Option 2</DropdownItem>
+						<!-- <DropdownItem>Option 1</DropdownItem>
+						<DropdownItem>Option 2</DropdownItem> -->
 						<DropdownItem divider />
-						<DropdownItem>Reset</DropdownItem>
+						<DropdownItem on:click={clearMessages}>Mark all as read</DropdownItem>
 					</DropdownMenu>
 				</UncontrolledDropdown>
 				<UncontrolledDropdown nav inNavbar class="nav-item-narrow">
 					<DropdownToggle nav>
 						<NavLink on:click={test}>
 							<span
-								class="fa-stack" style="width: 30px"
-								class:active={active === true}>
-								{#if active}
+								class="fas fa-stack fa-fw clear-defaults"
+								class:active={unreadNotifications === true}>
+								{#if unreadNotifications}
 									<Icon
 										icon={faCircle}
 										class="fas fa-stack-2x notify" />
@@ -135,7 +107,7 @@
 									icon={faBell}
 									class="navbar-icon fas fa-stack-2x fa-inverse" />
 							</span>
-							<span>9</span>
+							<span>{$notifications}</span>
 						</NavLink>
 					</DropdownToggle>
 					<DropdownMenu right>
